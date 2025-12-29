@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import Navbar from "@/components/Navbar";
 import {Toaster} from "react-hot-toast";
+import { AppProvider } from "@/context/AppProvider";
 
 export const metadata: Metadata = {
   title: "To Do Application",
@@ -17,9 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Toaster />
-        <Navbar />
-        {children}
+        <AppProvider>
+          <Toaster />
+          <Navbar />
+          {children}
+        </AppProvider>        
       </body>
     </html>
   );

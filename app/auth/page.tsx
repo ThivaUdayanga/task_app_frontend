@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 
+import { myAppHook } from '@/context/AppProvider';
+
 interface formData{
     name?: string;
     email: string;
@@ -18,6 +20,8 @@ const Auth: React.FC = () => {
         password_confirmation: ""
     });
 
+    const {login , register} = myAppHook();
+
     const handleOnChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         setForm({
             ...form,
@@ -25,13 +29,26 @@ const Auth: React.FC = () => {
         })
     }
 
-    const handleFormSubmit = (event: React.FormEvent<HTMLInputElement>) => {
+    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if(isLogin){
-            alert('Login Submitted')
+            try {
+                await login(form.email, form.password);
+            } catch (error) {
+                console.log("Login Error: ", error);
+            }
         } else {
-            alert('Register Submitted')
+            try {
+                await register(
+                    form.name ?? "", 
+                    form.email, 
+                    form.password, 
+                    form.password_confirmation ?? ""
+                );
+            } catch (error) {
+                console.log("Register Error: ", error);
+            }
         }
     }
 
