@@ -1,12 +1,15 @@
 "use client";
 
 import Loader from '@/components/Loader';
-import { createContext , useContext, useState} from 'react';
+import { createContext , useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 interface AppProviderType{
     isLoading: boolean;
+    authToken: string | null;
     login: (email: string, password : string) => Promise<void>;
     register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
 }
@@ -23,6 +26,18 @@ export const AppProvider = ({
 }) => {
 
     const [isLoading, setIsLoading] =  useState<boolean>(false);
+    const [authToken, setAuthToken] = useState<string | null>(null);
+    const router = useRouter();
+
+    useEffect( () => {
+        const token = Cookies.get('authToken');
+        if(token){
+            setAuthToken(token);
+        }else{
+            router.push("/auth");
+        }
+        setIsLoading(false);
+    } )
     
     const login = async(
         email: string, 
@@ -34,6 +49,16 @@ export const AppProvider = ({
                 email,
                 password
             });
+
+            if(response.data.status){
+                Cookies.set('authToken', response.data.token, {expires: 7});
+                toast.success("Login Successful");
+                setAuthToken(response.data.token);
+                router.push("/dashboard");
+            }else{
+                toast.error("Login failed");
+            }
+
             console.log(response);
         } catch (error: any) {
             console.log("Login Error: ", error);
@@ -67,7 +92,7 @@ export const AppProvider = ({
     };
 
     return(
-        <AppContext.Provider value={ { login, register, isLoading } }>
+        <AppContext.Provider value={ { login, register, isLoading , authToken} }>
             { isLoading ? <Loader /> : children}
         </AppContext.Provider>
     )
