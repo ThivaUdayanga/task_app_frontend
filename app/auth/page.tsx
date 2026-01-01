@@ -13,7 +13,7 @@ interface formData{
 
 const Auth: React.FC = () => {
 
-    const [isLogin, setIsLogin] = useState<boolean>(false);
+    const [isLogin, setIsLogin] = useState<boolean>(true);
     const [form, setForm] = useState<formData>({
         name: "",
         email: "",
@@ -24,6 +24,7 @@ const Auth: React.FC = () => {
     const router = useRouter();
 
     const {login , register, isLoading, authToken} = myAppHook();
+
     useEffect( () => {
         if(authToken){
             router.push("/dashboard")

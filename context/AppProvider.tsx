@@ -12,6 +12,7 @@ interface AppProviderType{
     authToken: string | null;
     login: (email: string, password : string) => Promise<void>;
     register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
+    logout: () => void;
 }
 
 const AppContext = createContext<AppProviderType | undefined>(undefined);
@@ -30,7 +31,7 @@ export const AppProvider = ({
     const router = useRouter();
 
     useEffect( () => {
-        const token = Cookies.get('authToken');
+        const token = Cookies.get("authToken");
         if(token){
             setAuthToken(token);
         }else{
@@ -56,7 +57,7 @@ export const AppProvider = ({
                 setAuthToken(response.data.token);
                 router.push("/dashboard");
             }else{
-                toast.error("Login failed");
+                toast.error("Invalid login Details");
             }
 
             console.log(response);
@@ -91,8 +92,16 @@ export const AppProvider = ({
         }
     };
 
+    const logout = () => {
+        setAuthToken(null);
+        Cookies.remove("authToken");
+        setIsLoading(false);
+        toast.success("Logged out successfully");
+        router.push("/auth");
+    };
+
     return(
-        <AppContext.Provider value={ { login, register, isLoading , authToken} }>
+        <AppContext.Provider value={ { login, register, isLoading , authToken, logout} }>
             { isLoading ? <Loader /> : children}
         </AppContext.Provider>
     )
